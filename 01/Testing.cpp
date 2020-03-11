@@ -17,7 +17,7 @@ void Test() {
     assert(allocator.alloc(1001) == nullptr);// Overflow
     assert(allocator.alloc(1000) != nullptr); // Border case
     allocator.reset();
-    cout << "All tests passed\n";
+    cout<<"All tests passed\n";
 }
 int main() {
     Test();
