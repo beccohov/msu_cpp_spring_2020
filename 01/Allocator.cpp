@@ -12,6 +12,7 @@ void* LinearAllocator::initAllocator(size_t max_size)
 		}
 	}
 	else return NULL;  // return error code into call process in case of void allocation
+	return base;
 }
 
 char * LinearAllocator::alloc(size_t request)
