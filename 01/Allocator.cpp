@@ -2,16 +2,17 @@
 #include <iostream>
 #include <stddef.h>
 using namespace std;
-void LinearAllocator::initAllocator(size_t max_size)
+void* LinearAllocator::initAllocator(size_t max_size)
 {
-    size = max_size;
-    if (max_size) {
-        base = malloc(max_size);// base == NULL in case of exception
-        if (!base) {
-            std::cout << "Allocating errror\n";
-            exit(1);
-        }
-    }
+	size = max_size;
+	if (max_size) {
+		base = malloc(max_size);// base == NULL in case of exception
+		if (!base) {
+			return NULL; // return error code into call process
+		}
+	}
+	else return NULL;  // return error code into call process in case of void allocation
+	return base;
 }
 
 char * LinearAllocator::alloc(size_t request)
