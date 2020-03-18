@@ -17,7 +17,7 @@ void on_num(const TokenNumber tok) {
     cout << "Processor successful!\n";
 }
 int main() {
-    Tokenizer tokenizer({" ","\n","\t"});
+    Tokenizer tokenizer;
     string example = "Hello\n42\tWorld!";
     tokenizer.tokenize(example,on_str,on_num,on_start,on_end);
     vector<TokenString> tokens_str = tokenizer.getStrTokens();

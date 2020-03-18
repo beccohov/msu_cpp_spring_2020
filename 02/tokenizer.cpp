@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 using namespace std;                                                      
-Tokenizer::Tokenizer(const std::vector<std::string> & delim) : delimiters(delim)
+Tokenizer::Tokenizer() : delimiters(" ""\n""\t")
 {   
 }
 std::vector<TokenString> Tokenizer::getStrTokens()
@@ -32,14 +32,9 @@ void Tokenizer::Collect(const std::string &str, size_t start, size_t end, OnFind
 Delimiter Tokenizer::findDelimiter(const std::string & str,size_t start)
 {   
     size_t min_pos = str.length();
-    size_t length = 0;
-    for (auto dlmtr : delimiters) {
-        auto position = str.find(dlmtr, start);
-        if (position < min_pos) { // save min position
-            min_pos = position;
-            length = dlmtr.length(); // delimiter length
-        }
-    }
+    size_t length = 1; //basicaly
+    min_pos = str.find_first_of(delimiters,start);
+    if (min_pos == std::string::npos) min_pos = str.length();  //For correct stopping
     return {min_pos,length};
 }
 void Tokenizer::tokenize(const std::string &str, \
