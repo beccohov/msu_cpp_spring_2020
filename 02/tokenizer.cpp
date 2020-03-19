@@ -1,54 +1,37 @@
 #include "tokenizer.h"
 #include <string>
 #include <vector>
-using namespace std;                                                      
-Tokenizer::Tokenizer() : delimiters(" ""\n""\t")
-{   
-}
-std::vector<TokenString> Tokenizer::getStrTokens()
+using namespace std;   
+
+Tokenizer::Tokenizer(OnFindStrToken strcb, OnFindNumToken intcb, OnStart startcb, OnEnd endcb) : delimiters(" ""\n""\t")
 {
-    return this->tokens_string;
+    str_cb = strcb;
+    int_cb = intcb;
+    start_cb = startcb;
+    end_cb = endcb;
 }
-std::vector<TokenNumber> Tokenizer::getNumTokens()
+void Tokenizer::defineTokenType(const std::string &token) // Call function in order to the token type
 {
-    return this->tokens_number;
+    bool number = true;
+    for (auto symb : token) {
+        if (!isdigit(symb)) {
+            number = false;
+            break;
+        }
+    }
+    if (number) int_cb(atoi(token.c_str()));
+    else str_cb(token);
 }
-void Tokenizer::Collect(const std::string &str, size_t start, size_t end, OnFindStrToken on_str, OnFindNumToken on_num)
+void Tokenizer::tokenize(const std::string &str)
 {
-    bool is_num = true;
-    for (int i = start; i < end; i++) if (!isdigit(str.at(i))) {
-        is_num = false; // It's a string token
-        break;
+    size_t found = 0;
+    start_cb(this); //call
+    while (found != std::string::npos && (str.length() != 0)) {
+        found = str.find_first_of(delimiters,start_from);
+        size_t sublength = found == std::string::npos ? str.length() - start_from : found - start_from;
+        std::string token = str.substr(start_from, sublength);
+        start_from = found + 1;
+        defineTokenType(token);
     }
-    if (is_num) {
-        tokens_number.push_back({ start,end });
-        on_num({ start,end }); //Callback
-    }
-    else {
-        tokens_string.push_back({ start,end });
-        on_str({ start,end }); //Callback
-    }
-}
-Delimiter Tokenizer::findDelimiter(const std::string & str,size_t start)
-{   
-    size_t min_pos = str.length();
-    size_t length = 1; //basicaly
-    min_pos = str.find_first_of(delimiters,start);
-    if (min_pos == std::string::npos) min_pos = str.length();  //For correct stopping
-    return {min_pos,length};
-}
-void Tokenizer::tokenize(const std::string &str, \
-    OnFindStrToken str_tok, OnFindNumToken num_tok, OnStart on_start, OnEnd on_end)
-{
-    tokens_string.clear();//Clean old data
-    tokens_number.clear();//Clean old data
-    size_t start = 0, end = 0;
-    on_start(this); //call
-    while (end != str.length()) {
-        auto delimiter = findDelimiter(str, start);
-        end = delimiter.begin;
-        Collect(str, start, end,str_tok,num_tok); //With callback
-        start = end + delimiter.length;
-    }
-    on_end(this); //call
+    end_cb(this); //call
 }

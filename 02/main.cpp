@@ -10,24 +10,20 @@ void on_end(Tokenizer* t) {
     cout << "Callback In the end of method successful!\n";
     assert(t != NULL); //test
 }
-void on_str(const TokenString tok) {
-    cout << "Processor successful!\n";
+void on_str(const std::string str) {
+    cout << "Processor successful! Got:\n";
+    cout << str;
+    cout << "\n";
 }
-void on_num(const TokenNumber tok) {
-    cout << "Processor successful!\n";
+void on_num(const int num) {
+    cout << "Processor successful! Got:\n";
+    cout << num;
+    cout << "\n";
 }
 int main() {
-    Tokenizer tokenizer;
+    Tokenizer tokenizer(on_str,on_num,on_start,on_end);
     string example = "Hello\n42\tWorld!";
-    tokenizer.tokenize(example,on_str,on_num,on_start,on_end);
-    vector<TokenString> tokens_str = tokenizer.getStrTokens();
-    assert(tokens_str[0].begin == 0);
-    assert(tokens_str[0].end == 5);
-    assert(tokens_str[1].begin == 9);
-    assert(tokens_str[1].end == 15);
-    vector<TokenNumber> tokens_num = tokenizer.getNumTokens();    
-    assert(tokens_num[0].begin == 6);
-    assert(tokens_num[0].end == 8);
+    tokenizer.tokenize(example);    
     cout << "All tests  passed\n";
     return 0;
 }
