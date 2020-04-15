@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <inttypes.h>
 #include <cstring>
-#define INITIAL 9
+const int INITIAL = 9;
 BigInt::BigInt()
 {
     sign = false;
@@ -34,7 +34,7 @@ BigInt::~BigInt()
 {
     free(value);
 }
-unsigned long long BigInt::get_count()
+unsigned long long BigInt::get_count() const
 {
     unsigned long long r = 0;
     for (int i = size - 1; i >= 0; i--) {
@@ -43,12 +43,13 @@ unsigned long long BigInt::get_count()
     }
     return size - r;
 }
-BigInt& BigInt::operator-()
+BigInt BigInt::operator-() const
 {
-    sign = !sign;
-    return *this;
+    BigInt minus_this = *this;
+    minus_this.sign = !sign;
+    return minus_this;
 }
-BigInt & BigInt::operator=(const BigInt & right)
+BigInt  BigInt::operator=(const BigInt  right)
 {
     value = (unsigned long long*)realloc(value,right.size * sizeof(long long));
     sign = right.sign;
@@ -63,12 +64,13 @@ BigInt& BigInt::extend(unsigned long long ext)
     value = (unsigned long long*)realloc(value, (this->size + ext) * sizeof(long long));
     return *this;
 }
-BigInt & BigInt::operator=(long long number)
-{
+BigInt BigInt::operator=(const long long number)
+{   
+    long long n;
     sign = number < 0;
-    number = number > 0 ? number : -number;
-    unsigned long long less = number % BASE;
-    unsigned long long other = number / BASE;
+    n = number > 0 ? number : -number;
+    unsigned long long less = n % BASE;
+    unsigned long long other = n / BASE;
     unsigned long long higher = other / BASE;
     other %= BASE;
     for (int i = 0; i < size; i++) value[i] = 0;
@@ -77,30 +79,7 @@ BigInt & BigInt::operator=(long long number)
     value[2] = higher;
     return *this;
 }
-BigInt  BigInt::operator+(BigInt & left) 
-{
-    if (sign == left.sign) {
-        unsigned long long lc = left.get_count(), rc = this->get_count();
-        unsigned long long max_size = lc > rc ? lc : rc;
-        unsigned long long min_size = lc < rc ? lc : rc;
-        BigInt result = left;
-        for (int i = 0, carry = 0; i < max_size || carry; ++i) {
-            if (i == result.size) result.extend(1);
-            result.value[i] += carry + (i < (int)this->size ? this->value[i] : 0);
-            carry = result.value[i] >= BASE;
-            if (carry) result.value[i] -= BASE;
-        }
-        return result;
-    }
-    return (*this - (-left));
-}
-BigInt  BigInt::abs()
-{
-    BigInt result = *this;
-    result.sign = false;
-    return result;
-}
-BigInt  BigInt::operator-(BigInt & right)
+BigInt  BigInt::operator-(const BigInt  right) const
 {
     if (sign == right.sign) {
         if (this->abs() > right.abs()) {
@@ -119,10 +98,34 @@ BigInt  BigInt::operator-(BigInt & right)
 
     return (*this + (-right));
 }
-BigInt BigInt::operator+(long long x)
+BigInt  BigInt::abs()  const
+{
+    BigInt result = *this;
+    result.sign = false;
+    return result;
+}
+BigInt  BigInt::operator+(const BigInt  left) const
+{
+    if (sign == left.sign) {
+        unsigned long long lc = left.get_count(), rc = this->get_count();
+        unsigned long long max_size = lc > rc ? lc : rc;
+        unsigned long long min_size = lc < rc ? lc : rc;
+        BigInt result = left;
+        for (int i = 0, carry = 0; i < max_size || carry; ++i) {
+            if (i == result.size) result.extend(1);
+            result.value[i] += carry + (i < (int)this->size ? this->value[i] : 0);
+            carry = result.value[i] >= BASE;
+            if (carry) result.value[i] -= BASE;
+        }
+        return result;
+    }
+    return (*this - (-left));
+}
+
+BigInt BigInt::operator+(const long long x) const
 {   
     BigInt number(x);
-    return *this+number;
+    return *this + number;
 }
 
 std::ostream & operator<<(std::ostream & stream,BigInt integer)
@@ -135,7 +138,7 @@ std::ostream & operator<<(std::ostream & stream,BigInt integer)
     return stream;
 }
 
-bool BigInt::operator>(BigInt c)
+bool BigInt::operator>(const BigInt c)
 {   
     if (sign > c.sign) return false;
     if (sign < c.sign) return true;
@@ -160,38 +163,39 @@ bool BigInt::operator>(BigInt c)
     }
     return greater;
 }
-bool BigInt::operator>(long long x)
+bool BigInt::operator>(const long long x)
 {
     BigInt number(x);
     return *this > number;
 }
-bool BigInt::operator<=(BigInt & right)
+bool BigInt::operator<=(const BigInt right)
 { 
     return !(*this > right);
 }
-bool BigInt::operator<=(long long x)
+bool BigInt::operator<=(const long long x)
 {
     BigInt number(x);
     return !(*this > number);
 }
-bool BigInt::operator>=(BigInt & right)
+bool BigInt::operator>=(const BigInt right)
 {
     return !(*this < right);
 }
-bool BigInt::operator<(BigInt & right)
+bool BigInt::operator<(const BigInt right) const
 {
-    return right > *this;
+    BigInt to_cmp = right;
+    return to_cmp > *this;
 }
-bool BigInt::operator<(long long x)
+bool BigInt::operator<(const long long x)
 {
     BigInt number(x);
     return *this < number;
 }
-bool BigInt::operator>=(long long x)
+bool BigInt::operator>=(const long long x)
 {
     return !(*this < x);
 }
-bool BigInt::operator==(BigInt & right)
+bool BigInt::operator==(const BigInt  right)
 {
     if (sign != right.sign) return false;
     bool r = true;
@@ -205,16 +209,16 @@ bool BigInt::operator==(BigInt & right)
     }
     return r;
 }
-bool BigInt::operator==(long long x)
+bool BigInt::operator==(const long long x)
 {
     BigInt number(x);
     return *this == number;
 }
-bool BigInt::operator!=(BigInt & right)
+bool BigInt::operator!=(const BigInt  right)
 {
     return !(*this == right);
 }
-bool BigInt::operator!=(long long x)
+bool BigInt::operator!=(const long long x)
 {
     return !(*this == x);
 }
