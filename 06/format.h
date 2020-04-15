@@ -25,7 +25,7 @@ std::stringstream argument(int i, Head head, Arguments... args) {
 
 
 template <typename ...Arguments>
-std::stringstream format(const char* row, Arguments... args) {
+std::string format(const char* row, Arguments... args) {
     std::string fml = row;
     std::stringstream result;
     int size = fml.size();
@@ -48,12 +48,12 @@ std::stringstream format(const char* row, Arguments... args) {
                 std::stringstream arg_by_id = argument(argument_id, args...);
                 result << arg_by_id.str();
             }
-            catch (...) {
+            catch (std::runtime_error) {
                 throw std::runtime_error("Argument not found");
             }
             
         }
         else result << fml[i]; // Write symbol
     }
-    return result;
+    return result.str();
 }
