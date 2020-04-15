@@ -37,8 +37,7 @@ private:
         value = std::stoi(variable);
         return Errors::NoError;
     }
-    template<>
-    Errors load_data<bool>(bool& value) {
+    Errors load_data(bool& value) {
         std::string text;
         instream >> text;
         if (text == "true") value = true;
