@@ -9,7 +9,7 @@ struct Data {
     bool b;
     uint64_t c;
     Errors serialize(Serializer& serializer) {
-        return serializer(a, b, c);
+        return serializer( a,b, c);
     }
     Errors deserialize(Deserializer& deserializer) {
         return deserializer(a, b, c);

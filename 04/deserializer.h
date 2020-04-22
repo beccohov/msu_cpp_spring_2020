@@ -12,16 +12,17 @@ public:
     };
     template <typename... Types>
     Errors operator()(Types&... args) {
+        //process(x);
         return process(args...);
     }
 private:
     std::istream &instream;
     template<typename Type>
-    Errors process(Type value) {
+    Errors process(Type &value) {
         return load_data(value);
     }
     template<typename Type, typename... Types>
-    Errors process(Type value, Types ... args) {
+    Errors process(Type &value, Types &&... args) {
         Errors res = load_data(value);
         if (res == Errors::Error)
             return Errors::Error;
@@ -38,7 +39,7 @@ private:
         return Errors::NoError;
     }
     template<>
-    Errors load_data<bool>(bool& value) {
+    Errors load_data(bool& value) {
         std::string text;
         instream >> text;
         if (text == "true") value = true;
