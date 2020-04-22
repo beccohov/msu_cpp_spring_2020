@@ -8,17 +8,15 @@ struct Data {
     uint64_t a;
     bool b;
     uint64_t c;
-    template<typename Serializer>
     Errors serialize(Serializer& serializer) {
         return serializer(a, b, c);
     }
-    template <typename Deserializer>
     Errors deserialize(Deserializer& deserializer) {
         return deserializer(a, b, c);
     }
 };
 int main() {
-    Data x{ 1, true, 2 };
+    const Data x{ 1, true, 2 };
     std::stringstream stream;
 
     Serializer serializer(stream);

@@ -17,15 +17,15 @@ public:
 private:
     std::istream &instream;
     template<typename Type>
-    Errors process(Type& value) {
+    Errors process(Type value) {
         return load_data(value);
     }
     template<typename Type, typename... Types>
-    Errors process(Type& value, Types& ... args) {
+    Errors process(Type value, Types ... args) {
         Errors res = load_data(value);
         if (res == Errors::Error)
             return Errors::Error;
-        return process(std::forward<Types&>(args)...);
+        return process(std::forward<Types>(args)...);
 
     }
     template<typename Type>
@@ -37,7 +37,8 @@ private:
         value = std::stoi(variable);
         return Errors::NoError;
     }
-    Errors load_data(bool& value) {
+    template<>
+    Errors load_data<bool>(bool& value) {
         std::string text;
         instream >> text;
         if (text == "true") value = true;

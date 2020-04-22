@@ -14,7 +14,7 @@ std::stringstream argument(int i, Head head) {
 
 
 template <typename Head, typename ...Arguments >
-std::stringstream argument(int i, Head head, Arguments... args) {
+std::stringstream argument(int i, Head& head,  Arguments&... args) {
     if (i == 0) {
         std::stringstream  required;
         required << head;
@@ -25,18 +25,17 @@ std::stringstream argument(int i, Head head, Arguments... args) {
 
 
 template <typename ...Arguments>
-std::string format(const char* row, Arguments... args) {
-    std::string fml = row;
+std::string format(const std::string& row, const Arguments&...args) {
     std::stringstream result;
-    int size = fml.size();
+    int size = row.size();
     for (int i = 0; i < size; i++) {
-        if (fml[i] == '}') throw std::runtime_error("Format error");
-        else if (fml[i] == '{') {
+        if (row[i] == '}') throw std::runtime_error("Format error");
+        else if (row[i] == '{') {
             int bck_prn = i + 1;
             std::string format_number = "";
             for (; bck_prn < size; bck_prn++) {
-                if (isdigit(fml[bck_prn])) format_number += fml[bck_prn];
-                else if (fml[bck_prn] == '}') {
+                if (isdigit(row[bck_prn])) format_number += row[bck_prn];
+                else if (row[bck_prn] == '}') {
                     i = bck_prn ; // i = bck_prn + 1 in next iteration
                     break;
                 }
@@ -53,7 +52,7 @@ std::string format(const char* row, Arguments... args) {
             }
             
         }
-        else result << fml[i]; // Write symbol
+        else result << row[i]; // Write symbol
     }
     return result.str();
 }

@@ -12,7 +12,7 @@ public:
     {
     }
     template<typename Type>
-    Errors save(Type& object_to_save) {
+    Errors save(Type object_to_save) {
         return object_to_save.serialize(*this);
     };
     template <typename... Types>
@@ -26,8 +26,8 @@ private:
         outstream << argument << separator;
         return Errors::NoError;
     }
-    //template<>
-    Errors put_to_stream(bool argument) { //specialization
+    template<>
+    Errors put_to_stream<bool>(bool argument) { //specialization
         if (argument) outstream << "true" << separator;
         else outstream << "false" << separator;
         return Errors::NoError;
