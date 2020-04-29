@@ -2,12 +2,11 @@
 template <typename EType>
 class riterator {
 public:
-    riterator(EType* p, EType* min) {
+    riterator(EType* p) {
         _curr = p;
-        _min = min;
     }
     riterator& operator++() {
-        if (_curr > _min) _curr--;
+        _curr--;
         return *this;
     }
     EType& operator*() {
@@ -21,12 +20,11 @@ public:
         return _curr != b._curr;
     }
     riterator& next() {
-        if (_curr > _min) _curr--;
+        _curr--;
         return *this;
     }
 private:
     EType * _curr;
-    EType* _min;
 };
 
 template <typename EType>

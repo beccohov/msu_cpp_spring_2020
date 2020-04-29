@@ -6,7 +6,7 @@ class Vector {
 public:
     Vector();
     Vector(size_t);
-    Vector(const Vector& arg);
+    Vector(const Vector& arg);   
     ~Vector();
     iterator_<T> begin() { 
         iterator_<T> x(&_elements[0]);
@@ -15,15 +15,15 @@ public:
     const iterator_<T> begin() const { return iterator_<T>(&_elements[0]); }
     iterator_<T> end() { return iterator_<T>(&_elements[_size > 0 ? _size -1:0]); }
     const iterator_<T> end() const { return iterator_<T>(&_elements[_size > 0 ? _size - 1 : 0]); }
-    riterator<T> rbegin() { return riterator<T>(&_elements[_size > 0 ? _size - 1 : 0] , &_elements[0]); }
+    riterator<T> rbegin() { return riterator<T>(&_elements[_size > 0 ? _size - 1 : 0] ); }
     const riterator<T> rbegin() const { return riterator<T>(&_elements[_size > 0 ? _size - 1 : 0], &_elements[0]); }
     riterator<T> rend() {
-        return riterator<T>(&_elements[0], &_elements[0]); 
+        return riterator<T>(&_elements[0]); 
     }
     const riterator<T> rend() const { return riterator<T>(&_elements[0], &_elements[0]); }
     bool empty() const { return _size == 0; }
     void reserve(int newmalloc);
-    void resize(int newsize, T val = T()); 
+    void resize(size_t newsize, T val = T()); 
     size_t size() const { return _size; }
     void clear();
     void push_back(const T& d);
@@ -31,8 +31,7 @@ public:
     T& operator[](int i);
     const T& operator[](int i) const;
     T& back();
-    const T& back() const;
-
+    const T& back() const;    
 private:
     size_t	_size;		
     T*		_elements;	
@@ -74,11 +73,11 @@ Vector<T>::Vector(const Vector & arg)
 template<class T>
 Vector<T>::~Vector()
 {
-    Allocator.GoBack();
+    Allocator.deallocate(_elements);
 }
 
 template<class T>
-void Vector<T>::resize(int newsize, T val)
+void Vector<T>::resize(size_t newsize, T val)
 {
     reserve(newsize);
     for (int index = _size; index < newsize; ++index)
@@ -91,16 +90,14 @@ template<class T>
 inline void Vector<T>::reserve(int newalloc)
 {
     if (newalloc <= _space) return;
-    _elements = Allocator.reshape(newalloc);
+    _elements = Allocator.reshape(_elements,newalloc);
     _space = newalloc;
 }
 
 template<class T>
 void Vector<T>::clear()
 {
-    Allocator.GoBack();
     _size = 0;
-    _elements = nullptr;
 }
 template<class T>
 void Vector<T>::push_back(const T & d)
