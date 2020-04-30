@@ -5,7 +5,7 @@ template<class T>
 class Vector {
 public:
     Vector();
-    Vector(size_t);
+    inline Vector(size_t, const T& = T{});
     Vector(const Vector& arg);   
     ~Vector();
     iterator_<T> begin() { 
@@ -23,7 +23,7 @@ public:
     const riterator<T> rend() const { return riterator<T>(&_elements[0], &_elements[0]); }
     bool empty() const { return _size == 0; }
     void reserve(int newmalloc);
-    void resize(size_t newsize, T val = T()); 
+    void resize(size_t newsize, const T& val = T()); 
     size_t size() const { return _size; }
     void clear();
     void push_back(const T& d);
@@ -55,12 +55,12 @@ Vector<T>::Vector()
     _space = 0;
 }
 template<class T>
-Vector<T>::Vector(size_t size)
+inline Vector<T>::Vector(size_t size, T const & val )
 {
     _elements = Allocator.allocate(size);
     _size = size;
     for (int index = 0; index < _size; ++index)
-        _elements[index] = T();
+        _elements[index] = val;
 }
 template<class T>
 Vector<T>::Vector(const Vector & arg)
@@ -77,12 +77,22 @@ Vector<T>::~Vector()
 }
 
 template<class T>
-void Vector<T>::resize(size_t newsize, T val)
+void Vector<T>::resize(size_t newsize, const T& val)
 {
-    reserve(newsize);
-    for (int index = _size; index < newsize; ++index)
-        _elements[index] = val;//T();
-
+    if (newsize > _size)
+    {
+        if (newsize > _space)  {
+            size_t reserved_size = newsize + newsize / 2 + 1;
+            Allocator.reshape(_elements,reserved_size);
+        }
+        for (size_t i = _size; i < newsize; i++)
+            _elements[i] = val;
+    }
+    else
+    {
+        for (size_t i = newsize; i < _size; i++)
+            _elements[i].~T();
+    }
     _size = newsize;
 }
 
@@ -130,7 +140,7 @@ const T & Vector<T>::operator[](int i) const
 template<class T>
 const T & Vector<T>::back() const
 {
-    if (_size) return _elements[size - 1];
+    if (_size>0) return _elements[size - 1];
     return nullptr;
 }
 template<class T>
