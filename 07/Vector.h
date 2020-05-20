@@ -57,10 +57,10 @@ Vector<T>::Vector()
 template<class T>
 inline Vector<T>::Vector(size_t size, T const & val )
 {
-    _elements = Allocator.allocate(size);
-    _size = size;
+    _elements = Allocator.allocate(size, val);
+    _size = size;/*
     for (int index = 0; index < _size; ++index)
-        _elements[index] = val;
+        _elements[index] = val;*/
 }
 template<class T>
 Vector<T>::Vector(const Vector & arg)
@@ -83,10 +83,10 @@ void Vector<T>::resize(size_t newsize, const T& val)
     {
         if (newsize > _space)  {
             size_t reserved_size = newsize + newsize / 2 + 1;
-            Allocator.reshape(_elements,reserved_size);
+            Allocator.reshape(_elements,reserved_size,val);
         }
         for (size_t i = _size; i < newsize; i++)
-            _elements[i] = val;
+            Allocator.alloc.construct(_elements + i,val);
     }
     else
     {
@@ -124,7 +124,9 @@ void Vector<T>::push_back(const T & d)
 template<class T>
 void Vector<T>::pop_back()
 {
-    if (_size) --_size;
+    if (_size) {
+        --_size;
+    }
 }
 
 template<class T>
